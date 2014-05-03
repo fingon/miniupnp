@@ -996,7 +996,7 @@ init(int argc, char * * argv, struct runtime_vars * v)
 					}
 				break;
 			case UPNPPCPALLOWTHIRDPARTY:
-				allow_thirdparty = true;
+				allow_thirdparty = 1;
 				break;
 #endif
 #ifdef PF_ENABLE_FILTER_RULES
