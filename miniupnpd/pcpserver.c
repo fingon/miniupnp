@@ -120,8 +120,8 @@ typedef struct pcp_info {
 	uint8_t is_peer_op;
 	int thirdp_present; /* indicate presence of the options */
 	int pfailure_present;
-	char senderaddrstr[INET_ADDRSTRLEN]; /* only if IPv4 sender */
-
+	char senderaddrstr[INET_ADDRSTRLEN];
+	struct in6_addr sender_ip;
 } pcp_info_t;
 
 
@@ -1429,7 +1429,22 @@ int ProcessIncomingPCPPacket(int s, unsigned char *buff, int len,
 		              sizeof(pcp_msg_info.senderaddrstr))) {
 			syslog(LOG_ERR, "inet_ntop(pcpserver): %m");
 		}
-	}
+		pcp_msg_info.sender_ip.s6_addr[11] = 0xff;
+		pcp_msg_info.sender_ip.s6_addr[10] = 0xff;
+		memcpy(pcp_msg_info.sender_ip.s6_addr+12,
+		       &senderaddr_v4->sin_addr, 4);
+	} else if(senderaddr->sa_family == AF_INET6) {
+		const struct sockaddr_in6 * senderaddr_v6;
+		senderaddr_v6 = (const struct sockaddr_in6 *)senderaddr;
+		if(!inet_ntop(AF_INET6, &senderaddr_v6->sin6_addr,
+			      pcp_msg_info.senderaddrstr,
+			      sizeof(pcp_msg_info.senderaddrstr))) {
+			syslog(LOG_ERR, "inet_ntop(pcpserver): %m");
+		}
+		pcp_msg_info.sender_ip = senderaddr_v6->sin6_addr;
+	} else
+		return 0;
+
 	if(sockaddr_to_string(senderaddr, addr_str, sizeof(addr_str)))
 		syslog(LOG_DEBUG, "PCP request received from %s %dbytes",
 		       addr_str, len);
