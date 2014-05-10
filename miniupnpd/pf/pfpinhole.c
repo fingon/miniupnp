@@ -15,6 +15,9 @@
 #ifdef __DragonFly__
 #include <net/pf/pfvar.h>
 #else
+#ifdef MACOSX
+#define PRIVATE 1
+#endif
 #include <net/pfvar.h>
 #endif
 #include <fcntl.h>
@@ -39,7 +42,8 @@
  * with the label "pinhole-$uid ts-$timestamp"
  */
 
-#ifdef ENABLE_6FC_SERVICE
+#ifdef ENABLE_UPNPPINHOLE
+
 /* /dev/pf when opened */
 extern int dev;
 
@@ -363,5 +367,4 @@ int clean_pinhole_list(unsigned int * next_timestamp)
 	return n;	/* number of rules removed */
 }
 
-#endif /* ENABLE_IPV6 */
-
+#endif /* ENABLE_UPNPPINHOLE */

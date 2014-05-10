@@ -16,7 +16,7 @@
 #include "iptpinhole.h"
 #include "../upnpglobalvars.h"
 
-#ifdef ENABLE_6FC_SERVICE
+#ifdef ENABLE_UPNPPINHOLE
 
 #include <xtables.h>
 #include <libiptc/libip6tc.h>
@@ -407,5 +407,4 @@ clean_pinhole_list(unsigned int * next_timestamp)
 	return n;
 }
 
-#endif
-
+#endif /* ENABLE_UPNPPINHOLE */

@@ -7,7 +7,8 @@
 #ifndef IPTPINHOLE_H_INCLUDED
 #define IPTPINHOLE_H_INCLUDED
 
-#ifdef ENABLE_6FC_SERVICE
+#ifdef ENABLE_UPNPPINHOLE
+
 int add_pinhole(const char * ifname,
                 const char * rem_host, unsigned short rem_port,
                 const char * int_client, unsigned short int_port,
@@ -26,6 +27,6 @@ get_pinhole_info(unsigned short uid,
 
 int clean_pinhole_list(unsigned int * next_timestamp);
 
-#endif
+#endif /* ENABLE_UPNPPINHOLE */
 
 #endif

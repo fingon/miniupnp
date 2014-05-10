@@ -8,7 +8,8 @@
 #ifndef PFPINHOLE_H_INCLUDED
 #define PFPINHOLE_H_INCLUDED
 
-#ifdef ENABLE_6FC_SERVICE
+#ifdef ENABLE_UPNPPINHOLE
+
 int add_pinhole(const char * ifname,
                 const char * rem_host, unsigned short rem_port,
                 const char * int_client, unsigned short int_port,
@@ -27,7 +28,7 @@ int update_pinhole(unsigned short uid, unsigned int timestamp);
 
 int clean_pinhole_list(unsigned int * next_timestamp);
 
-#endif
+#endif /* ENABLE_UPNPPINHOLE */
 
 #endif
 
