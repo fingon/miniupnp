@@ -93,12 +93,6 @@ struct pcp_server_info {
 /* default server settings, highest version supported is the default */
 static struct pcp_server_info this_server_info = {2};
 
-#ifdef ENABLE_IPV6
-#define PCP_ADDRSTRLEN INET6_ADDRSTRLEN
-#else
-#define PCP_ADDRSTRLEN INET_ADDRSTRLEN
-#endif /* ENABLE_IPV6 */
-
 
 /* structure holding information from PCP msg*/
 /* all variables are in host byte order except IP addresses */
@@ -142,7 +136,7 @@ typedef struct pcp_info {
 	uint8_t is_peer_op;
 	const struct in6_addr *thirdp_ip;
 	const struct in6_addr *mapped_ip;
-	char mapped_str[PCP_ADDRSTRLEN];
+	char mapped_str[INET6_ADDRSTRLEN];
 	int pfailure_present;
 	struct in6_addr sender_ip;
 	int is_fw; /* is this firewall operation? if not, nat. */
@@ -231,18 +225,18 @@ static int parseCommonRequestHeader(const pcp_request_t *common_req, pcp_info_t 
 #ifdef DEBUG
 static void printMAPOpcodeVersion1(const pcp_map_v1_t *map_buf)
 {
-	char map_addr[PCP_ADDRSTRLEN];
+	char map_addr[INET6_ADDRSTRLEN];
 	syslog(LOG_DEBUG, "PCP MAP: v1 Opcode specific information. \n");
 	syslog(LOG_DEBUG, "MAP protocol: \t\t %d\n",map_buf->protocol );
 	syslog(LOG_DEBUG, "MAP int port: \t\t %d\n", ntohs(map_buf->int_port) );
 	syslog(LOG_DEBUG, "MAP ext port: \t\t %d\n", ntohs(map_buf->ext_port) );
 	syslog(LOG_DEBUG, "MAP Ext IP: \t\t %s\n", inet_ntop(AF_INET6,
-	       &map_buf->ext_ip, map_addr, PCP_ADDRSTRLEN));
+	       &map_buf->ext_ip, map_addr, INET6_ADDRSTRLEN));
 }
 
 static void printMAPOpcodeVersion2(const pcp_map_v2_t *map_buf)
 {
-	char map_addr[PCP_ADDRSTRLEN];
+	char map_addr[INET6_ADDRSTRLEN];
 	syslog(LOG_DEBUG, "PCP MAP: v2 Opcode specific information.");
 	syslog(LOG_DEBUG, "MAP nonce:   \t%08x%08x%08x",
 	       map_buf->nonce[0], map_buf->nonce[1], map_buf->nonce[2]);
@@ -250,7 +244,7 @@ static void printMAPOpcodeVersion2(const pcp_map_v2_t *map_buf)
 	syslog(LOG_DEBUG, "MAP int port:\t%d", ntohs(map_buf->int_port));
 	syslog(LOG_DEBUG, "MAP ext port:\t%d", ntohs(map_buf->ext_port));
 	syslog(LOG_DEBUG, "MAP Ext IP:  \t%s", inet_ntop(AF_INET6,
-	       &map_buf->ext_ip, map_addr, PCP_ADDRSTRLEN));
+	       &map_buf->ext_ip, map_addr, INET6_ADDRSTRLEN));
 }
 #endif /* DEBUG */
 
@@ -296,23 +290,23 @@ static int parsePCPMAP_version2(const pcp_map_v2_t *map_v2,
 #ifdef DEBUG
 static void printPEEROpcodeVersion1(pcp_peer_v1_t *peer_buf)
 {
-	char ext_addr[PCP_ADDRSTRLEN];
-	char peer_addr[PCP_ADDRSTRLEN];
+	char ext_addr[INET6_ADDRSTRLEN];
+	char peer_addr[INET6_ADDRSTRLEN];
 	syslog(LOG_DEBUG, "PCP PEER: v1 Opcode specific information. \n");
 	syslog(LOG_DEBUG, "Protocol: \t\t %d\n",peer_buf->protocol );
 	syslog(LOG_DEBUG, "Internal port: \t\t %d\n", ntohs(peer_buf->int_port) );
 	syslog(LOG_DEBUG, "External IP: \t\t %s\n", inet_ntop(AF_INET6, &peer_buf->ext_ip,
-	       ext_addr,PCP_ADDRSTRLEN));
+	       ext_addr,INET6_ADDRSTRLEN));
 	syslog(LOG_DEBUG, "External port port: \t\t %d\n", ntohs(peer_buf->ext_port) );
 	syslog(LOG_DEBUG, "PEER IP: \t\t %s\n", inet_ntop(AF_INET6, &peer_buf->peer_ip,
-	       peer_addr,PCP_ADDRSTRLEN));
+	       peer_addr,INET6_ADDRSTRLEN));
 	syslog(LOG_DEBUG, "PEER port port: \t\t %d\n", ntohs(peer_buf->peer_port) );
 }
 
 static void printPEEROpcodeVersion2(pcp_peer_v2_t *peer_buf)
 {
-	char ext_addr[PCP_ADDRSTRLEN];
-	char peer_addr[PCP_ADDRSTRLEN];
+	char ext_addr[INET6_ADDRSTRLEN];
+	char peer_addr[INET6_ADDRSTRLEN];
 
 	syslog(LOG_DEBUG, "PCP PEER: v2 Opcode specific information.");
 	syslog(LOG_DEBUG, "nonce:        \t%08x%08x%08x",
@@ -320,10 +314,10 @@ static void printPEEROpcodeVersion2(pcp_peer_v2_t *peer_buf)
 	syslog(LOG_DEBUG, "Protocol:     \t%d",peer_buf->protocol );
 	syslog(LOG_DEBUG, "Internal port:\t%d", ntohs(peer_buf->int_port) );
 	syslog(LOG_DEBUG, "External IP:  \t%s", inet_ntop(AF_INET6, &peer_buf->ext_ip,
-	       ext_addr,PCP_ADDRSTRLEN));
+	       ext_addr,INET6_ADDRSTRLEN));
 	syslog(LOG_DEBUG, "External port:\t%d", ntohs(peer_buf->ext_port) );
 	syslog(LOG_DEBUG, "PEER IP:      \t%s", inet_ntop(AF_INET6, &peer_buf->peer_ip,
-	       peer_addr,PCP_ADDRSTRLEN));
+	       peer_addr,INET6_ADDRSTRLEN));
 	syslog(LOG_DEBUG, "PEER port:    \t%d", ntohs(peer_buf->peer_port) );
 }
 #endif /* DEBUG */
@@ -426,7 +420,7 @@ static int parseSADSCP(pcp_sadscp_req_t *sadscp, pcp_info_t *pcp_msg_info) {
 static int parsePCPOption(void* pcp_buf, int remain, pcp_info_t *pcp_msg_info)
 {
 #ifdef DEBUG
-	char third_addr[PCP_ADDRSTRLEN];
+	char third_addr[INET6_ADDRSTRLEN];
 #endif
 	unsigned short option_length;
 
@@ -466,7 +460,7 @@ static int parsePCPOption(void* pcp_buf, int remain, pcp_info_t *pcp_msg_info)
 #ifdef DEBUG
 		syslog(LOG_DEBUG, "PCP OPTION: \t Third party \n");
 		syslog(LOG_DEBUG, "Third PARTY IP: \t %s\n", inet_ntop(AF_INET6,
-								       &(opt_3rd->ip), third_addr, PCP_ADDRSTRLEN));
+								       &(opt_3rd->ip), third_addr, INET6_ADDRSTRLEN));
 #endif
 		if (pcp_msg_info->thirdp_ip ) {
 			syslog(LOG_ERR, "PCP: THIRD PARTY OPTION was already present. \n");
@@ -635,7 +629,7 @@ static int CheckExternalAddress(pcp_info_t* pcp_msg_info)
 		       "PCP: External IP in request didn't match interface IP \n");
 #ifdef DEBUG
 		{
-			char s[PCP_ADDRSTRLEN];
+			char s[INET6_ADDRSTRLEN];
 			syslog(LOG_DEBUG, "Interface IP %s \n",
 			       inet_ntop(AF_INET6, &external_addr.s6_addr, s, sizeof(s)));
 			syslog(LOG_DEBUG, "IP in the PCP request %s \n",
@@ -702,7 +696,7 @@ static void CreatePCPPeer(pcp_info_t *pcp_msg_info)
 
 	uint16_t eport = pcp_msg_info->ext_port;  /* public port */
 
-	char peerip_s[PCP_ADDRSTRLEN], extip_s[PCP_ADDRSTRLEN];
+	char peerip_s[INET6_ADDRSTRLEN], extip_s[INET6_ADDRSTRLEN];
 	int r = -1;
 
 	FillSA((struct sockaddr*)&intip, pcp_msg_info->mapped_ip,
@@ -832,13 +826,13 @@ static void DeletePCPPeer(pcp_info_t *pcp_msg_info)
 	uint16_t iport = pcp_msg_info->int_port;  /* private port */
 	uint16_t rport = pcp_msg_info->peer_port;  /* private port */
 	uint8_t  proto = pcp_msg_info->protocol;
-	char rhost[PCP_ADDRSTRLEN];
+	char rhost[INET6_ADDRSTRLEN];
 	int r = -1;
 
 	/* remove requested mappings for this client */
 	int index = 0;
 	unsigned short eport2, iport2, rport2;
-	char iaddr2[PCP_ADDRSTRLEN], rhost2[PCP_ADDRSTRLEN];
+	char iaddr2[INET6_ADDRSTRLEN], rhost2[INET6_ADDRSTRLEN];
 	int proto2;
 	char desc[64];
 	unsigned int timestamp;
@@ -931,7 +925,7 @@ static void DeletePCPPeer(pcp_info_t *pcp_msg_info)
 /* TODO : support more scenarios than just NAT44 */
 static void CreatePCPMap(pcp_info_t *pcp_msg_info)
 {
-	char iaddr_old[PCP_ADDRSTRLEN];
+	char iaddr_old[INET6_ADDRSTRLEN];
 	uint16_t iport_old;
 	uint16_t eport_first = 0;
 	int any_eport_allowed = 0;
@@ -1146,17 +1140,8 @@ static int ValidatePCPMsg(pcp_info_t *pcp_msg_info)
 	}
 
 	/* Produce mapped_str for future use. */
-	if (IN6_IS_ADDR_V4MAPPED(pcp_msg_info->mapped_ip)) {
-		if (!inet_ntop(AF_INET,
-			       &((uint32_t *)pcp_msg_info->mapped_ip)[3],
-			       pcp_msg_info->mapped_str,
-			       sizeof(pcp_msg_info->mapped_str))) {
-			syslog(LOG_ERR, "inet_ntop(pcpserver): %m");
-			return 0;
-		}
-	} else if(!inet_ntop(AF_INET6, pcp_msg_info->mapped_ip,
-			     pcp_msg_info->mapped_str,
-			     sizeof(pcp_msg_info->mapped_str))) {
+	if (!inet_n46top(pcp_msg_info->mapped_ip, pcp_msg_info->mapped_str,
+		         sizeof(pcp_msg_info->mapped_str))) {
 		syslog(LOG_ERR, "inet_ntop(pcpserver): %m");
 		return 0;
 	}
