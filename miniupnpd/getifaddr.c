@@ -198,7 +198,9 @@ int getifaddr_in6(const char * ifname, int af, struct in6_addr * addr)
 #else /* defined(ENABLE_IPV6) || defined(USE_GETIFADDRS) */
 	/* IPv4 only */
 	struct in_addr addr4;
-	if(getifaddr(ifname, NULL, 0, &addr4, NULL) < 0 || af != AF_INET)
+	if(af != AF_INET)
+		return -1;
+	if(getifaddr(ifname, NULL, 0, &addr4, NULL) < 0)
 		return -1;
 	/* IPv4-mapped IPv6 address ::ffff:1.2.3.4 */
 	memset(addr->s6_addr, 0, 10);

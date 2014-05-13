@@ -1121,7 +1121,7 @@ static int ValidatePCPMsg(pcp_info_t *pcp_msg_info)
 	}
 
 	if (pcp_msg_info->thirdp_ip) {
-		if (!allow_thirdparty) {
+		if (!GETFLAG(PCP_ALLOWTHIRDPARTYMASK)) {
 			pcp_msg_info->result_code = PCP_ERR_UNSUPP_OPTION;
 			return 0;
 		}
