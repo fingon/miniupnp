@@ -912,6 +912,15 @@ static int CreatePCPMap_NAT(pcp_info_t *pcp_msg_info)
 	int any_eport_allowed = 0;
 	unsigned int timestamp = time(NULL) + pcp_msg_info->lifetime;
 
+	if (pcp_msg_info->ext_port == 0) {
+		pcp_msg_info->ext_port = pcp_msg_info->int_port;
+	}
+
+	/* TODO: Support non-TCP/UDP */
+	if (pcp_msg_info->ext_port == 0) {
+		return PCP_ERR_MALFORMED_REQUEST;
+	}
+
 	do {
 		if (eport_first == 0) { /* first time in loop */
 			eport_first = pcp_msg_info->ext_port;
@@ -998,13 +1007,14 @@ static int CreatePCPMap_NAT(pcp_info_t *pcp_msg_info)
 static int CreatePCPMap_FW(pcp_info_t *pcp_msg_info)
 {
 #ifdef ENABLE_UPNPPINHOLE
+	int uid;
 	int r = upnp_add_inboundpinhole(NULL, 0,
 					pcp_msg_info->mapped_str,
 					pcp_msg_info->int_port,
 					pcp_msg_info->protocol,
 					pcp_msg_info->desc,
 					pcp_msg_info->lifetime,
-					NULL);
+					&uid);
 	if (r < 0)
 		return PCP_ERR_NO_RESOURCES;
 	return PCP_SUCCESS;
@@ -1051,8 +1061,9 @@ static void CreatePCPMap(pcp_info_t *pcp_msg_info)
 	else
 		r = CreatePCPMap_NAT(pcp_msg_info);
 	pcp_msg_info->result_code = r;
-	syslog(LOG_ERR, "PCP MAP: %s mapping %hu->%s:%hu '%s'",
+	syslog(LOG_ERR, "PCP MAP: %s mapping %s %hu->%s:%hu '%s'",
 	       r == PCP_SUCCESS ? "added" : "failed to add",
+	       (pcp_msg_info->protocol==IPPROTO_TCP)?"TCP":"UDP",
 	       pcp_msg_info->ext_port,
 	       pcp_msg_info->mapped_str,
 	       pcp_msg_info->int_port,
