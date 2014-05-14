@@ -704,7 +704,8 @@ static int CreatePCPPeer_NAT(pcp_info_t *pcp_msg_info)
 	uint16_t eport = pcp_msg_info->ext_port;  /* public port */
 
 	char peerip_s[INET6_ADDRSTRLEN], extip_s[INET6_ADDRSTRLEN];
-	int r = ;
+	time_t timestamp = time(NULL) + pcp_msg_info->lifetime;
+	int r;
 
 	FillSA((struct sockaddr*)&intip, pcp_msg_info->mapped_ip,
 	       pcp_msg_info->int_port);
@@ -715,9 +716,6 @@ static int CreatePCPPeer_NAT(pcp_info_t *pcp_msg_info)
 
 	inet_satop((struct sockaddr*)&peerip, peerip_s, sizeof(peerip_s));
 	inet_satop((struct sockaddr*)&extip, extip_s, sizeof(extip_s));
-
-	time_t timestamp = time(NULL) + pcp_msg_info->lifetime;
-	int r;
 
 	/* check if connection with given peer exists, if it was */
 	/* already established use this external port */
@@ -792,6 +790,7 @@ static int CreatePCPPeer_NAT(pcp_info_t *pcp_msg_info)
 static void CreatePCPPeer(pcp_info_t *pcp_msg_info)
 {
 	char peerip_s[INET6_ADDRSTRLEN];
+	int r = -1;
 
 	if (!inet_n46top(pcp_msg_info->peer_ip, peerip_s, sizeof(peerip_s))) {
 		syslog(LOG_ERR, "inet_n46top(peer_ip): %m");
